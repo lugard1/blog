@@ -15,9 +15,7 @@ RSpec.describe 'Users', type: :request do
     it 'displays the body paragraph for users' do
       # Create users here if necessary
       get '/users'
-      # expect(response).to have_http_status(200)
       expect(response.body).to include('Lugard')
-      # expect(response.body).to include('index')
     end
   end
 
