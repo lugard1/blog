@@ -19,7 +19,6 @@ RSpec.describe 'Users', type: :request do
       expect(response.body).to include('Lugard')
       # expect(response.body).to include('index')
     end
-    
   end
 
   describe 'GET specific user' do
@@ -38,7 +37,7 @@ RSpec.describe 'Users', type: :request do
     it 'displays the body paragraph for specific user' do
       user = User.create!(name: 'Lugard', photo: 'www.unsplash.com', bio: 'text', posts_counter: 3)
       get user_path(user)
-      expect(response.body).to include("Lugard")
+      expect(response.body).to include('Lugard')
     end
   end
 end
