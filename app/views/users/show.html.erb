@@ -28,5 +28,5 @@
     <% end %>
   </section>
 
-  <a class='all-posts-btn' href='<%= user_posts_path(user_id: @user.id) %>'>See all posts</a>
+  <%= link_to 'See all posts', user_posts_path(user_id: @user.id), class: 'all-posts-btn' %>
 </main>
