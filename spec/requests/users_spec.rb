@@ -4,7 +4,6 @@ RSpec.describe 'Users', type: :request do
   describe 'GET all users' do
     it 'checks whether it brings a successful response' do
       get '/users'
-
       expect(response).to be_successful
     end
 
@@ -14,27 +13,29 @@ RSpec.describe 'Users', type: :request do
     end
 
     it 'displays the body paragraph for users' do
+      # Create users here if necessary
       get '/users'
-      expect(response.body).to include('All Users')
+      expect(response.body).to include('Lugard')
     end
   end
 
   describe 'GET specific user' do
-    user = User.create!(name: 'Lugard', photo: 'www.unsplash.com', bio: 'Test', posts_counter: 3)
-
     it 'checks whether it brings a successful response' do
-      get "/users/#{user.id}"
+      user = User.create!(name: 'Lugard', photo: 'www.unsplash.com', bio: 'text', posts_counter: 3)
+      get user_path(user)
       expect(response).to be_successful
     end
 
     it 'renders the show template' do
-      get "/users/#{user.id}"
+      user = User.create!(name: 'Lugard', photo: 'www.unsplash.com', bio: 'text', posts_counter: 3)
+      get user_path(user)
       expect(response).to render_template(:show)
     end
 
     it 'displays the body paragraph for specific user' do
-      get "/users/#{user.id}"
-      expect(response.body).to include('The page of the user with id:')
+      user = User.create!(name: 'Lugard', photo: 'www.unsplash.com', bio: 'text', posts_counter: 3)
+      get user_path(user)
+      expect(response.body).to include('Lugard')
     end
   end
 end

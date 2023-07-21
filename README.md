@@ -102,6 +102,7 @@ Clone this repository to your desired folder:
 - [ ] Add more methods
 - [ ] Add validations
 - [ ] Add views associated with the models and controllers already created.
+- [ ] Refactor my code.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
