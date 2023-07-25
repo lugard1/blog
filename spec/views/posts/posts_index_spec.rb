@@ -1,41 +1,75 @@
 require 'rails_helper'
 
-RSpec.describe 'Single Post View', type: :feature do
-  before(:each) do
-    @user = User.create!(name: 'John Doe', photo: 'user_photo.jpg')
-    @post1 = @user.posts.create!(text: 'This is post 1.') 
-    @post2 = @user.posts.create!(text: 'This is post 2.')
-    @comment1 = @post1.comments.create!(author: @user, text: 'Comment 1 for post 1')
+RSpec.feature 'User Post Index Page', type: :feature, js: true do
+  let(:user) { create(:user) }
+  let!(:post1) { create(:post, user: user) }
+  let!(:post2) { create(:post, user: user) }
+
+  before do
+    visit user_posts_path(user)
   end
 
-  it 'displays user information' do
-    visit user_post_path(@user, @post1)
-    expect(page).to have_content(@user.name)
-    expect(page).to have_selector('img.user-image[src="user_photo.jpg"]')
-    expect(page).to have_content("Number of posts: #{User.posts_counter}")
+  It 'displays user profile picture, username, and number of posts' do
+    expect(page).to have_css('.user-photo img')
+    expect(page).to have_content(user.name)
+    expect(page).to have_content("Number of posts: #{user.posts_counter}")
   end
 
-  it 'displays posts information' do
-    visit user_post_path(@user, @post1)
-    expect(page).to have_content('Post: #')
-    expect(page).to have_content(@post1.text)
-    expect(page).to have_content("Comments: #{Post.comments_counter}, Likes: #{Post.likes_counter}")
+  It 'displays each post with title, body, comments, likes' do
+    within '.single-post:first-child' do
+      expect(page).to have_content("Post: # #{post1.id}")
+      expect(page).to have_content(post1.text)
+      expect(page).to have_content("Comments: #{post1.comments_counter}, Likes: #{post1.likes_counter}")
+    end
+
+    within '.single-post:last-child' do
+      expect(page).to have_content("Post: # #{post2.id}")
+      expect(page).to have_content(post2.text)
+      expect(page).to have_content("Comments: #{post2.comments_counter}, Likes: #{post2.likes_counter}")
+    end
   end
 
-  it 'displays comments for the post' do
-    visit user_post_path(@user, @post1)
-    expect(page).to have_content(@comment1.author.name)
-    expect(page).to have_content(@comment1.text)
+  It 'displays the first comment of each post' do
+    within '.single-post:first-child .comments' do
+      expect(page).to have_content(post1.last_comments.first.author.name)
+      expect(page).to have_content(post1.last_comments.first.text)
+    end
+
+    within '.single-post:last-child .comments' do
+      expect(page).to have_content(post2.last_comments.first.author.name)
+      expect(page).to have_content(post2.last_comments.first.text)
+    end
   end
 
-  it 'displays message if there are no posts' do
-    @user.posts.delete_all
-    visit user_post_path(@user, @post1)
+  It 'displays how many comments each post has' do
+    within '.single-post:first-child .counter' do
+      expect(page).to have_content("Comments: #{post1.comments_counter}")
+    end
+
+    within '.single-post:last-child .counter' do
+      expect(page).to have_content("Comments: #{post2.comments_counter}")
+    end
+  end
+
+  It 'displays how many likes each post has' do
+    within '.single-post:first-child .counter' do
+      expect(page).to have_content("Likes: #{post1.likes_counter}")
+    end
+
+    within '.single-post:last-child .counter' do
+      expect(page).to have_content("Likes: #{post2.likes_counter}")
+    end
+  end
+
+  It 'displays a message when there are no posts' do
+    user.posts.destroy_all
+    visit user_posts_path(user)
+
     expect(page).to have_content('There are no posts. Please add a post.')
   end
 
-  it 'displays pagination button' do
-    visit user_post_path(@user, @post1)
-    expect(page).to have_link('Pagination')
+  It 'redirects to post show page when clicking on a post' do
+    click_link "Post: # #{post1.id}"
+    expect(page).to have_current_path(user_post_path(user, post1))
   end
 end
