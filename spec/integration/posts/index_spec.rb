@@ -44,7 +44,7 @@ RSpec.describe 'User post index page:', type: :feature do
 
   scenario 'I can see a posts title.' do
     visit user_posts_path(@user1.id)
-    expect(page).to have_content('post four') # Assuming this is the first post
+    expect(page).to have_content('post four')
   end
 
   scenario ' I can see the post body.' do
@@ -74,7 +74,7 @@ RSpec.describe 'User post index page:', type: :feature do
 
   scenario 'When I click on a post, it redirects me to that post\'s show page.' do
     visit user_posts_path(@user1.id)
-    click_link(@post1.title)
+    click_link(href: user_post_path(@user1, @post1))
     expect(page).to have_current_path(user_post_path(@user1.id, @post1.id))
-  end  
+  end
 end

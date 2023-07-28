@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe 'User Index Page', type: :feature do
   before do
-    @user1 = User.create(name: 'Mucha', posts_counter: 0)
-    @user2 = User.create(name: 'Jeddah', posts_counter: 0)
+    @user1 = User.create(name: 'Lugard', posts_counter: 0)
+    @user2 = User.create(name: 'Naledi', posts_counter: 0)
 
     @user1.update(photo: 'https://unsplash.com/photos/F_-0BxGuVvo')
     @user2.update(photo: 'https://unsplash.com/es/fotos/mEZ3PoFGs_k')
@@ -12,8 +12,8 @@ RSpec.describe 'User Index Page', type: :feature do
   it 'displays the username of all other users' do
     visit users_path
 
-    expect(page).to have_content('Mucha')
-    expect(page).to have_content('Jeddah')
+    expect(page).to have_content('Lugard')
+    expect(page).to have_content('Naledi')
   end
 
   it 'displays the profile picture for each user' do
@@ -39,15 +39,3 @@ RSpec.describe 'User Index Page', type: :feature do
     expect(page).to have_content(@user1.name)
   end
 end
-
-
-
-
-
-
-
-
-
-
-
-

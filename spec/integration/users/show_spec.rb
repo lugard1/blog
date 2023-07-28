@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe 'User Show Page', type: :feature do
   before do
-    @user1 = User.create(name: 'Mucha', posts_counter: 0)
-    @user2 = User.create(name: 'Jeddah', posts_counter: 0)
+    @user1 = User.create(name: 'Agu', posts_counter: 0)
+    @user2 = User.create(name: 'Naledi', posts_counter: 0)
 
     @user1.update(photo: 'https://unsplash.com/photos/F_-0BxGuVvo')
     @user2.update(photo: 'https://unsplash.com/es/fotos/mEZ3PoFGs_k')
@@ -12,7 +12,7 @@ RSpec.describe 'User Show Page', type: :feature do
   it 'displays the username of the user' do
     visit user_path(@user1)
 
-    expect(page).to have_content('Mucha')
+    expect(page).to have_content('Agu')
   end
 
   it 'displays the profile picture of the user' do
