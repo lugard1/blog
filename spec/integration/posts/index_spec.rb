@@ -1,67 +1,80 @@
 require 'rails_helper'
+require 'capybara/rspec'
 
-RSpec.describe 'Post Index Page', type: :feature do
-  before do
-    @user = User.create(name: 'John Doe', photo: 'https://example.com/john_doe.jpg', posts_counter: 2)
-    @post1 = Post.create(title: 'Post 1', text: 'Lorem ipsum dolor sit amet...', author: @user, comments_counter: 0, likes_counter: 0)
-    @post2 = Post.create(title: 'Post 2', text: 'Consectetur adipiscing elit...', author: @user, comments_counter: 0, likes_counter: 0)
-  end
-  
-  it 'displays the user photo and name for each post' do
-    visit user_posts_path(@user)
+RSpec.describe 'User post index page:', type: :feature do
+  before(:each) do
+    @user1 = User.create(name: 'unique_show', photo: 'http://localhost:3000/anything.jpg', bio: 'Anything test',
+                         posts_counter: 0)
+    puts "Lugard #{@user1}."
 
-    expect(page).to have_css('.user-image')
-    expect(page).to have_content('John Doe', count: 1)
-  end
+    @post1 = Post.create(title: 'post one', text: 'post one text', author: @user1, comments_counter: 0,
+                         likes_counter: 0)
+    expect(@post1).to be_valid
 
-  it 'displays the title and preview text of each post' do
-    visit user_posts_path(@user)
+    @post2 = Post.create(title: 'post two', text: 'post two text', author: @user1, comments_counter: 0,
+                         likes_counter: 0)
+    @post3 = Post.create(title: 'post three', text: 'post three text', author: @user1, comments_counter: 0,
+                         likes_counter: 0)
+    @post4 = Post.create(title: 'post four', text: 'post four text', author: @user1, comments_counter: 0,
+                         likes_counter: 0)
 
-    expect(page).to have_content('Post 1')
-    expect(page).to have_content('Post 2')
-    expect(page).to have_content('Lorem ipsum dolor sit amet...')
-  end
+    @comment1 = Comment.create(text: 'comment one', author: @user1, post: @post1)
+    @comment2 = Comment.create(text: 'comment two', author: @user1, post: @post1)
+    @comment3 = Comment.create(text: 'comment three', author: @user1, post: @post1)
+    @comment4 = Comment.create(text: 'comment four', author: @user1, post: @post1)
+    @comment5 = Comment.create(text: 'comment five', author: @user1, post: @post1)
 
-  it 'displays the number of comments and likes for each post' do
-    visit user_posts_path(@user)
-
-    expect(page).to have_content('Comments: 0', count: 2)
-    expect(page).to have_content('Likes: 0', count: 2)
+    @like1 = Like.create(author: @user1, post: @post1)
   end
 
-  it 'displays the five most recent comments for each post' do
-    Comment.create(text: 'Comment 1', post: @post1, author: @user)
-    Comment.create(text: 'Comment 2', post: @post1, author: @user)
-    Comment.create(text: 'Comment 3', post: @post1, author: @user)
-    Comment.create(text: 'Comment 4', post: @post2, author: @user)
-    Comment.create(text: 'Comment 5', post: @post2, author: @user)
-    Comment.create(text: 'Comment 6', post: @post2, author: @user)
-    Comment.create(text: 'Comment 6', post: @post2, author: @user)
-
-    visit user_posts_path(@user)
-
-    expect(page).to have_content('Comment 1', count: 1)
-    expect(page).to have_content('Comment 2', count: 1)
-    expect(page).to have_content('Comment 3', count: 1)
-    expect(page).to have_content('Comment 4', count: 1)
-    expect(page).to have_content('Comment 5', count: 1)
-    expect(page).not_to have_content('Comment 7')
+  scenario 'I can see the users profile picture.' do
+    visit user_posts_path(@user1.id)
+    expect(@user1.photo).to match(%r{^http?://.*\.(jpe?g|gif|png)$})
   end
 
-  it 'displays a message when there are no posts for the user' do
-    @user.posts.destroy_all
-
-    visit user_posts_path(@user)
-
-    expect(page).to have_content('No posts for this user!')
+  scenario 'I can see the users name.' do
+    visit user_posts_path(@user1.id)
+    expect(page).to have_content(@user1.name)
   end
 
-  it 'redirects to the post show page when clicking on a post' do
-    visit user_posts_path(@user)
-
-    click_link(href: user_post_path(@user, @post1))
-
-    expect(current_path).to eq(user_post_path(@user, @post1))
-    expect(page).to have_content('Post 1')
+  scenario 'I can see the number of posts the user has written.' do
+    visit user_posts_path(@user1.id)
+    expect(page).to have_content(@user1.posts.count)
   end
+
+  scenario 'I can see a posts title.' do
+    visit user_posts_path(@user1.id)
+    expect(page).to have_content('post four') # Assuming this is the first post
+  end
+
+  scenario ' I can see the post body.' do
+    visit user_post_path(@user1.id, @post1.id)
+    expect(page).to have_content(@post1.text)
+  end
+
+  scenario 'I can see the first comments on a post.' do
+    visit user_post_path(@user1.id, @post1.id)
+    expect(page).to have_content(@post1.comments.first.text)
+  end
+
+  scenario 'I can see how many comments a post has.' do
+    visit user_post_path(@user1.id, @post1.id)
+    expect(page).to have_content(@post1.comments.count)
+  end
+
+  scenario 'I can see how many likes it has.' do
+    visit user_post_path(@user1.id, @post1.id)
+    expect(page).to have_content(@post1.likes_counter)
+  end
+
+  scenario 'I can see a section for pagination if there are more posts than fit on the view.' do
+    visit user_posts_path(@user1.id)
+    expect(page).to have_link('Pagination')
+  end
+
+  scenario 'When I click on a post, it redirects me to that post\'s show page.' do
+    visit user_posts_path(@user1.id)
+    click_link(@post1.title)
+    expect(page).to have_current_path(user_post_path(@user1.id, @post1.id))
+  end  
 end

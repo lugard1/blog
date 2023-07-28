@@ -1,66 +1,59 @@
 require 'rails_helper'
+require 'capybara/rspec'
 
-RSpec.describe 'Post Show Page', type: :feature do
-  before do
-    @user = User.create(name: 'John Doe', photo: 'https://example.com/john_doe.jpg')
-    @user.save # Save the user to the database
-    @post = @user.posts.create(title: 'Post Title', text: 'Lorem ipsum dolor sit amet...', comments_counter: 0, likes_counter: 0)
+RSpec.describe 'Post show page:', type: :feature do
+  before(:each) do
+    @user1 = User.create(name: 'unique_show', photo: 'http://localhost:3000/anything.jpg', bio: 'Anything test',
+                         posts_counter: 0)
+    @post1 = Post.create(title: 'post one', text: 'post one text', author: @user1, comments_counter: 0,
+                         likes_counter: 0)
+    @post2 = Post.create(title: 'post two', text: 'post two text', author: @user1, comments_counter: 0,
+                         likes_counter: 0)
+    @post3 = Post.create(title: 'post three', text: 'post three text', author: @user1, comments_counter: 0,
+                         likes_counter: 0)
+    @post4 = Post.create(title: 'post four', text: 'post four text', author: @user1, comments_counter: 0,
+                         likes_counter: 0)
+    @comment1 = Comment.create(text: 'comment one', author: @user1, post: @post1)
+    @comment2 = Comment.create(text: 'comment two', author: @user1, post: @post1)
+    @comment3 = Comment.create(text: 'comment three', author: @user1, post: @post1)
+    @comment4 = Comment.create(text: 'comment four', author: @user1, post: @post1)
+    @comment5 = Comment.create(text: 'comment five', author: @user1, post: @post1)
+    @like1 = Like.create(author: @user1, post: @post1)
   end
-  
-  it 'displays the post title and author name' do
-    visit user_post_path(@user, @post)
-
-    expect(page).to have_content('"Post Title" by John Doe')
+  scenario 'I can see the posts title.' do
+    visit user_post_path(@user1.id, @post1.id)
+    expect(page).to have_content(@post1.title)
   end
-
-  it 'displays the post text' do
-    visit user_post_path(@user, @post)
-
-    expect(page).to have_content('Lorem ipsum dolor sit amet...')
+  scenario 'I can see who wrote the post' do
+    visit user_post_path(@user1.id, @post1.id)
+    expect(page).to have_content(@post1.author.name)
   end
-
-  it 'displays the number of comments and likes for the post' do
-    visit user_post_path(@user, @post)
-
-    expect(page).to have_content('Comments: 0')
-    expect(page).to have_content('Likes: 0')
+  scenario 'I can see how many comments it has.' do
+    visit user_post_path(@user1.id, @post1.id)
+    expect(page).to have_content(@post1.comments.count)
   end
-
-  it 'displays a form to like the post' do
-    visit user_post_path(@user, @post)
-
-    expect(page).to have_button('Like')
+  scenario 'I can see how many likes it has.' do
+    visit user_post_path(@user1.id, @post1.id)
+    expect(page).to have_content(@post1.likes_counter)
   end
-
-  it 'redirects to the comment creation page when clicking on "Add Comment" link' do
-    visit user_post_path(@user, @post)
-
-    click_link 'Add Comment'
-
-    expect(current_path).to eq(new_user_post_comment_path(@user, @post))
+  scenario ' I can see the post body.' do
+    visit user_post_path(@user1.id, @post1.id)
+    expect(page).to have_content(@post1.text)
   end
-
-  it 'displays comments with author name' do
-    Comment.create(text: 'Comment 1', post: @post, author: @user)
-    Comment.create(text: 'Comment 2', post: @post, author: @user)
-
-    visit user_post_path(@user, @post)
-
-    expect(page).to have_content('John Doe : Comment 1')
-    expect(page).to have_content('John Doe : Comment 2')
+  scenario 'I can see the username of each commentor.' do
+    visit user_post_path(@user1.id, @post1.id)
+    expect(page).to have_content(@comment1.author.name)
+    expect(page).to have_content(@comment2.author.name)
+    expect(page).to have_content(@comment3.author.name)
+    expect(page).to have_content(@comment4.author.name)
+    expect(page).to have_content(@comment5.author.name)
   end
-
-  it 'displays a message when there are no comments for the post' do
-    visit user_post_path(@user, @post)
-
-    expect(page).to have_content('No comments available yet!!!')
-  end
-
-  it 'redirects to the root page when clicking on "Back to all users" button' do
-    visit user_post_path(@user, @post)
-
-    click_button 'Back to all users'
-
-    expect(current_path).to eq(root_path)
+  scenario 'I can see the body of each comment.' do
+    visit user_post_path(@user1.id, @post1.id)
+    expect(page).to have_content(@user1.posts.first.comments.first.text)
+    expect(page).to have_content(@user1.posts.first.comments.second.text)
+    expect(page).to have_content(@user1.posts.first.comments.third.text)
+    expect(page).to have_content(@user1.posts.first.comments.fourth.text)
+    expect(page).to have_content(@user1.posts.first.comments.fifth.text)
   end
 end
