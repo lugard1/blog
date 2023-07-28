@@ -10,7 +10,7 @@
   </section>
 
   <section>
-    <% if @user.last_posts.blank? %>
+    <% if @user.posts.empty? %>
       <h2>There are no posts. Please add a post.</h2>
     <% else %>
       <% @user.posts.each do |post| %>
